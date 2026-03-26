@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
@@ -33,6 +35,7 @@ public class ProductService implements  IProductService{
     private final ModelMapper modelMapper;
 
     @Override
+    @CacheEvict(value = "products", allEntries = true)
     public Product addProduct(AddProductRequets requets){
 
         if(productExist(requets.getName(),requets.getBrand())){
@@ -59,13 +62,17 @@ public class ProductService implements  IProductService{
     public Product getProductById(Long id){
         return productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("Product not Found"));
     }
-    public void deleteProductById(Long Id){
-        productRepository.findById(Id).ifPresentOrElse(productRepository::delete,()->{
+
+    @CacheEvict(value = "products", allEntries = true)
+    public void deleteProductById(Long id){
+        productRepository.findById(id).ifPresentOrElse(productRepository::delete,()->{
             throw new ProductNotFoundException("Product not found");
         });
     }
-    public Product updateProduct(ProductUpdateRequest request,Long Id){
-        return productRepository.findById(Id)
+
+    @CachePut(value = "products", key = "#id")
+    public Product updateProduct(ProductUpdateRequest request,Long id){
+        return productRepository.findById(id)
             .map(existingProduct -> updateExistingProduct(existingProduct, request))
             .map(productRepository::save)
             .orElseThrow(() -> new ProductNotFoundException("Product Not Found"));
@@ -83,6 +90,7 @@ public class ProductService implements  IProductService{
         return existingProduct;
     }
 
+    @Cacheable(value = "products", key = "#cursor + '-' + #limit")
     public List<Product> getAllProducts(Long cursor, Long limit){
         return productRepository.findAll(cursor,limit);
     }
