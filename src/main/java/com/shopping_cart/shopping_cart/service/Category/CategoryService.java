@@ -3,6 +3,9 @@ package com.shopping_cart.shopping_cart.service.Category;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
@@ -20,6 +23,7 @@ import lombok.RequiredArgsConstructor;
 public class CategoryService implements ICategoryService{
     private final CategoryRepository categoryRepository;
 
+    @Cacheable(value = "categories", key = "#id")
     public Category getCategoryById(Long id){
         return categoryRepository.findById(id)
             .orElseThrow(()-> new ResourceAccessException("CategoryNotFound"));
@@ -28,11 +32,12 @@ public class CategoryService implements ICategoryService{
     public Category getCategoryByName(String name){
         return categoryRepository.findByName(name);
     }
-
-    public List<Category> getAllCategories(){
+    @Cacheable(value = "categories", key = "#cursor + '-' + #limit")
+    public List<Category> getAllCategories(Long cursor, Long limit){
         return categoryRepository.findAll();
     }
 
+    @CacheEvict(value = "categories", allEntries = true)
     public Category addCategory(CategoryDto category){
         return Optional.of(category)
         .filter(c -> !categoryRepository.existsByName(c.getName()))
@@ -41,6 +46,7 @@ public class CategoryService implements ICategoryService{
         .orElseThrow(() -> new AlreadyExistsException("Category existing"));
     }
 
+    @CachePut(value = "categories", key = "#id")
     public Category updateCategory(Category category, Long id){
         return Optional.ofNullable(getCategoryById(id)).map(oldCategory->{
             oldCategory.setName(category.getName());
@@ -48,6 +54,7 @@ public class CategoryService implements ICategoryService{
         }).orElseThrow(()-> new ResourceAccessException("Category not found"));
     }
     
+    @CacheEvict(value = "categories", allEntries = true)
     public void deleteCategoryById(Long id){
         categoryRepository.findById(id).
         ifPresentOrElse(categoryRepository::delete,

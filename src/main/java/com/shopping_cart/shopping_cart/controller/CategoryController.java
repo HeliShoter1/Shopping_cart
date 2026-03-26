@@ -32,9 +32,9 @@ public class CategoryController {
     private final ICategoryService categoryService;
     
     @GetMapping("/all")
-    public ResponseEntity<ApiResponse> getAllCategories(){
+    public ResponseEntity<ApiResponse> getAllCategories(@RequestParam Long cursor, @RequestParam Long limit){
         try {
-            List<Category> categories = categoryService.getAllCategories();
+            List<Category> categories = categoryService.getAllCategories(cursor, limit);
             return ResponseEntity.ok(new ApiResponse("Found", categories));
         } catch (ResourceNotFoundException e) {
             return ResponseEntity
