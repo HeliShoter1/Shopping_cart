@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.ResourceAccessException;
 
+import com.shopping_cart.shopping_cart.dto.CategoryDto;
 import com.shopping_cart.shopping_cart.exceptions.AlreadyExistsException;
 import com.shopping_cart.shopping_cart.model.Category;
 import com.shopping_cart.shopping_cart.reponsitory.CategoryRepository;
@@ -32,9 +33,10 @@ public class CategoryService implements ICategoryService{
         return categoryRepository.findAll();
     }
 
-    public Category addCategory(Category category){
+    public Category addCategory(CategoryDto category){
         return Optional.of(category)
         .filter(c -> !categoryRepository.existsByName(c.getName()))
+        .map(c -> new Category(c.getName()))
         .map(categoryRepository::save)
         .orElseThrow(() -> new AlreadyExistsException("Category existing"));
     }

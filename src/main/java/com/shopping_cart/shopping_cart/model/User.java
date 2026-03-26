@@ -1,11 +1,14 @@
 package com.shopping_cart.shopping_cart.model;
 
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.ManyToAny;
 import org.hibernate.annotations.NaturalId;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -42,6 +45,10 @@ public class User {
     @NaturalId
     private String email;
     private String password;
+    @CreationTimestamp
+    private LocalDateTime  createdAt;
+    @UpdateTimestamp
+    private LocalDateTime  updateAt;
 
     @JsonIgnore
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)

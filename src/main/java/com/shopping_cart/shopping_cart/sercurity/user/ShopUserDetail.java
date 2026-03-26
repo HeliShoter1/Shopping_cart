@@ -38,6 +38,10 @@ public class ShopUserDetail implements UserDetails {
                 authorities);
     }
 
+    public Long getId(){
+        return this.id;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return this.authorities;

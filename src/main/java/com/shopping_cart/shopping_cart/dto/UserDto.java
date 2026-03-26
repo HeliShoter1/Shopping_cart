@@ -15,4 +15,13 @@ public class UserDto {
     private String email;
     // private List<OrderDto> orders;    
     // private Cart cart;
+
+    public UserDto() {} 
+
+    public UserDto(Long id, String firstName, String lastName, String email) {
+        this.id = id;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+    }
 }  

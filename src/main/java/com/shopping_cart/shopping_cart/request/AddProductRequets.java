@@ -7,11 +7,12 @@ import com.shopping_cart.shopping_cart.model.Category;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.validation.Valid;
 import lombok.Data;
 
 @Data
+@Valid
 public class AddProductRequets {
-    private Long id;
     private String name;
     private String brand;
     private String description;

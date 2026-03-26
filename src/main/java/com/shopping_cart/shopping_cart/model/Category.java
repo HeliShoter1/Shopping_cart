@@ -1,6 +1,11 @@
 package com.shopping_cart.shopping_cart.model;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -25,6 +30,10 @@ public class Category {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
+    @CreationTimestamp
+    private LocalDateTime  createdAt;
+    @UpdateTimestamp
+    private LocalDateTime  updateAt;
     
     @JsonIgnore
     @OneToMany(mappedBy = "category")
@@ -32,5 +41,10 @@ public class Category {
 
     public Category(String name){
         this.name = name;
+    }
+
+    public Optional<Category> map(Object object) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'map'");
     }
 }

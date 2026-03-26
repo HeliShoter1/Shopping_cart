@@ -1,6 +1,8 @@
 package com.shopping_cart.shopping_cart.sercurity.jwt;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.lang.NonNull;
@@ -13,7 +15,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.shopping_cart.shopping_cart.sercurity.user.ShopUserDetailService;
 
-import ch.qos.logback.core.util.StringUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +24,8 @@ import jakarta.servlet.http.HttpServletResponse;
 
 
 public class AuthTokenFilter extends OncePerRequestFilter {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+
     @Autowired
     private JwtUtils jwtUtils;
     @Autowired
@@ -41,15 +45,21 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             }
         } catch (JwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-            response.setContentType("application/json");
-            response.getWriter().write("Invalid or expired token: " + e.getMessage());
+            response.setContentType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.getWriter().write(OBJECT_MAPPER.writeValueAsString(
+                    Map.of("error", "Unauthorized", "message", "Invalid or expired token")));
+            return;
         } catch (Exception e) {
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.setContentType("application/json");
-            response.getWriter().write("Unexpected error: " + e.getMessage());
-        } finally {
-            filterChain.doFilter(request, response);
+            response.setContentType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
+            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            response.getWriter().write(OBJECT_MAPPER.writeValueAsString(
+                    Map.of("error", "Internal Server Error", "message", "Unexpected error")));
+            return;
         }
+
+        filterChain.doFilter(request, response);
     }
 
     private String parseJwt(HttpServletRequest request) {

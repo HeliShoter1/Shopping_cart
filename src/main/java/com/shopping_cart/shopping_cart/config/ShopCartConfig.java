@@ -36,8 +36,17 @@ public class ShopCartConfig {
     private final ShopUserDetailService shopUserDetailService;
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
-    private static final List<String> SECURED_URLS = List.of("/api/v1/carts/**",
-                                                            "/api/v1/cartItems/**");
+    private static final List<String> SECURED_URLS = List.of(
+        "/api/v1/carts/**",
+        "/api/v1/cartItems/**",
+        "/api/v1/orders/**",
+        "api/v1/users/**",
+        "api/v1/oders/**"
+    );
+
+    private static final List<String> PUBLIC_URLS = List.of(
+        "/api/v1/users/add"
+    );
 
     @Bean
     public ModelMapper modelMapper() {
@@ -73,12 +82,15 @@ public class ShopCartConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .exceptionHandling(exception -> exception.authenticationEntryPoint(this.jwtAuthEntryPoint))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(auth -> auth.requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
+                .authorizeHttpRequests(
+                    auth -> 
+                        auth
+                        .requestMatchers(PUBLIC_URLS.toArray(String[]::new)).permitAll()
+                        .requestMatchers(SECURED_URLS.toArray(String[]::new)).authenticated()
                         .anyRequest().permitAll());
         http.authenticationProvider(daoAuthenticationProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
-
     }
 
     @Bean

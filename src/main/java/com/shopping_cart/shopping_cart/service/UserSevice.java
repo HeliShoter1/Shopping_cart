@@ -28,8 +28,8 @@ public class UserSevice implements IUserService{
     private final ModelMapper modelMapper;
     private final PasswordEncoder passwordEncoder;
     
-    public User getUseById(Long userId){
-        return userReponsitory.findById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
+    public UserDto getUseById(Long userId){
+        return userReponsitory.findUserById(userId).orElseThrow(()-> new ResourceNotFoundException("User not found"));
     }
     public User createUser(CreateUserRequest request){
         return Optional.of(request)
@@ -40,7 +40,10 @@ public class UserSevice implements IUserService{
                             user.setPassword(passwordEncoder.encode(request.getPassword()));
                             user.setFirstName(request.getFirstName());
                             user.setLastName(request.getLastName());
-                            return userReponsitory.save(user);
+                            User savedUser = userReponsitory.save(user);
+                            userReponsitory.insertUserRole(savedUser.getId(), 1);
+                            return savedUser;
+                            
                         }).orElseThrow(() -> new AlreadyExistsException("Email already exists"));
     }
     public User updateUser(UserUpdateRequest request, Long userId){

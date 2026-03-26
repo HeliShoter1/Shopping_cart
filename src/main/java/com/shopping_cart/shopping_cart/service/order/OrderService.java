@@ -72,8 +72,8 @@ public class OrderService implements IOrderService{
                         .reduce(BigDecimal.ZERO,BigDecimal::add);
     }
 
-    public List<OrderDto> getUserOrders(Long userId){
-        return orderReponsitory.findByUser_Id(userId).stream().map(this::convertDto).toList();
+    public List<OrderDto> getUserOrders(Long userId, Long cursor, Long limit){
+        return orderReponsitory.findByUser_Id(userId, cursor, limit).stream().map(this::convertDto).toList();
     }
 
     private OrderDto convertDto(Order order){

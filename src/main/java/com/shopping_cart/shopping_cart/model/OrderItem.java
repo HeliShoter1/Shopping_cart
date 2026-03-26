@@ -1,6 +1,10 @@
 package com.shopping_cart.shopping_cart.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -26,6 +30,10 @@ public class OrderItem {
     private Long id;
     private int quantity;
     private BigDecimal price;   
+    @CreationTimestamp
+    private LocalDateTime  createdAt;
+    @UpdateTimestamp
+    private LocalDateTime  updateAt;
     @JsonIgnore 
     @ManyToOne
     @JoinColumn(name = "order_id")

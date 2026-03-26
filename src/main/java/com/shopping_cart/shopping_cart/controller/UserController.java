@@ -1,5 +1,7 @@
 package com.shopping_cart.shopping_cart.controller;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.Authentication;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -17,6 +19,7 @@ import com.shopping_cart.shopping_cart.model.User;
 import com.shopping_cart.shopping_cart.request.CreateUserRequest;
 import com.shopping_cart.shopping_cart.request.UserUpdateRequest;
 import com.shopping_cart.shopping_cart.response.ApiResponse;
+import com.shopping_cart.shopping_cart.sercurity.user.ShopUserDetail;
 import com.shopping_cart.shopping_cart.service.IUserService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,9 +33,8 @@ public class UserController {
     @GetMapping("/{userId}/user")
     public ResponseEntity<ApiResponse> getUserById(@PathVariable("userId") Long Id){
         try {
-            User user = userService.getUseById(Id);
-            UserDto userDto = userService.convertDto(user);
-            return ResponseEntity.ok(new ApiResponse("Success", userDto));
+            UserDto user = userService.getUseById(Id);
+            return ResponseEntity.ok(new ApiResponse("Success", user));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body( new ApiResponse("Error", e.getMessage()));
         }
@@ -49,10 +51,12 @@ public class UserController {
         }
     }
 
-    @PutMapping("/{userId}/update")
-    public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request,@PathVariable Long userId){
+    @PutMapping("/update")
+    public ResponseEntity<ApiResponse> updateUser(@RequestBody UserUpdateRequest request){
+       
         try {
-            User user = userService.updateUser(request,userId);
+            User user_pool = userService.getAuthenticateUser();
+            User user = userService.updateUser(request,user_pool.getId());
             UserDto userDto = userService.convertDto(user);
             return ResponseEntity.ok(new ApiResponse("Success", userDto));
         } catch (Exception e) {
@@ -60,10 +64,11 @@ public class UserController {
         }
     }
 
-    @DeleteMapping("/{userId}/delete")
-    public ResponseEntity<ApiResponse> deleteUser(@PathVariable Long userId){
+    @DeleteMapping("/delete")
+    public ResponseEntity<ApiResponse> deleteUser(){
         try {
-            userService.deleteUser(userId);
+            User user_pool = userService.getAuthenticateUser();
+            userService.deleteUser(user_pool.getId());
             return ResponseEntity.ok(new ApiResponse("create user success", null));               
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body( new ApiResponse("Error", e.getMessage()));

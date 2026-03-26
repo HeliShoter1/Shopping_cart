@@ -8,5 +8,5 @@ import com.shopping_cart.shopping_cart.model.Order;
 public interface IOrderService {
     Order placeOrder(Long userId);
     OrderDto getOrder(Long orderId);
-    List<OrderDto> getUserOrders(Long userId);
+    List<OrderDto> getUserOrders(Long userId,Long cursor, Long limit);
 }

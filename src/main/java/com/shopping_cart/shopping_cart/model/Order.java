@@ -6,6 +6,9 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.shopping_cart.shopping_cart.enums.OrderStatus;
 
@@ -40,6 +43,10 @@ public class Order {
     private BigDecimal totalAmount;
     @Enumerated(EnumType.STRING)
     private OrderStatus orderStatus;
+    @CreationTimestamp
+    private LocalDateTime  createdAt;
+    @UpdateTimestamp
+    private LocalDateTime  updateAt;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<OrderItem> orderItems = new HashSet<>(); 

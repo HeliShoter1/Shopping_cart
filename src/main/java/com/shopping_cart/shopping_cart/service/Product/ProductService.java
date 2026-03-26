@@ -45,7 +45,7 @@ public class ProductService implements  IProductService{
             return categoryRepository.save(newCategory);
         });
         requets.setCategory(category);
-        Product temp = productRepository.save(createProduct(requets, category));
+        Product temp = productRepository.save(this.createProduct(requets, category));
         System.err.println(temp);
         return temp;
     }
@@ -81,8 +81,8 @@ public class ProductService implements  IProductService{
         return existingProduct;
     }
 
-    public List<Product> getAllProducts(){
-        return productRepository.findAll();
+    public List<Product> getAllProducts(Long cursor, Long limit){
+        return productRepository.findAll(cursor,limit);
     }
 
     public List<Product> getAllProductsByCategory(String category){

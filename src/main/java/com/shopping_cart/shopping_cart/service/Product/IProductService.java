@@ -12,7 +12,7 @@ public interface IProductService {
     Product getProductById(Long Id);
     void deleteProductById(Long Id);
     Product updateProduct(ProductUpdateRequest request,Long Id);    
-    List<Product> getAllProducts();
+    List<Product> getAllProducts(Long cursor, Long limit);
     List<Product> getAllProductsByCategory(String category);
     List<Product> getProductsByCategoryAndBrand(String category, String brand);
     List<Product> getAllProductsByBrand(String brand);

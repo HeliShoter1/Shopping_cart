@@ -1,15 +1,19 @@
 package com.shopping_cart.shopping_cart.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.Getter;
-import lombok.Setter;
-
-@AllArgsConstructor
-@Data
-@Setter
-@Getter
 public class ApiResponse {
     private String message;
-    private Object data;    
+    private Object data;
+
+    public ApiResponse() {}
+
+    public ApiResponse(String message, Object data) {
+        this.message = message;
+        this.data = data;
+    }
+
+    public String getMessage() { return message; }
+    public void setMessage(String message) { this.message = message; }
+
+    public Object getData() { return data; }
+    public void setData(Object data) { this.data = data; }
 }

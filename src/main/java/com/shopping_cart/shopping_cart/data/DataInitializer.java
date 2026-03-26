@@ -3,6 +3,7 @@ package com.shopping_cart.shopping_cart.data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.context.event.ApplicationReadyEvent;
 import org.springframework.context.ApplicationListener;
+import org.springframework.lang.NonNull;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -22,10 +23,10 @@ public class DataInitializer implements ApplicationListener<ApplicationReadyEven
     private final PasswordEncoder passwordEncoder;
 
     @Override
-    public void onApplicationEvent(ApplicationReadyEvent event) {
+    public void onApplicationEvent(@NonNull ApplicationReadyEvent event) {
         Set<String> defaultRoles = Set.of("ROLE_ADMIN", "ROLE_USER");
-        createDefaultUserIfNotExits();
         createDefaultRoleIfNotExits(defaultRoles);
+        createDefaultUserIfNotExits();
         createDefaultAdminIfNotExits();
     }
 

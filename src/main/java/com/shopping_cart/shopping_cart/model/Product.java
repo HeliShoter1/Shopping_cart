@@ -1,7 +1,12 @@
 package com.shopping_cart.shopping_cart.model;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
+
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
@@ -14,6 +19,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.PrePersist;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -35,8 +41,12 @@ public class Product {
     private String description;
     private BigDecimal price;
     private int inventory;
+    @CreationTimestamp
+    private LocalDateTime  createdAt;
+    @UpdateTimestamp
+    private LocalDateTime  updateAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name= "category_id")
     private Category category;
     
@@ -52,5 +62,4 @@ public class Product {
         this.inventory = inventory;
         this.category = category;
     }
-
 }
