@@ -45,13 +45,21 @@ public class ProductController {
         @RequestParam Long cursor,
         @RequestParam Long limit
     ){
-        List<Product> products = productService.getAllProducts(cursor,limit);
-        List<ProductDto> convertedProduct = productService.getConvertedProducts(products);
-        return ResponseEntity.ok(new ApiResponse("Found", convertedProduct));
+        try {
+            List<Product> products = productService.getAllProducts(cursor,limit);
+            List<ProductDto> convertedProduct = productService.getConvertedProducts(products);
+            return ResponseEntity.ok(new ApiResponse("Found", convertedProduct));
+        } catch (Exception e) {
+            // TODO: handle exception
+             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error", HttpStatus.INTERNAL_SERVER_ERROR));
+        }
+        
     }
 
     @GetMapping("/product/{productId}/product")
-    public ResponseEntity<ApiResponse> getProductById(@PathVariable("productId") Long id,HttpServletRequest request){
+    public ResponseEntity<ApiResponse> getProductById(@PathVariable("productId") Long id
+                                                    ,HttpServletRequest request
+                                                ){
         try {
             Product product = productService.getProductById(id);
             String etag = "\"" + product.getUpdateAt().toEpochSecond(ZoneOffset.UTC) + "\""; 
@@ -67,7 +75,7 @@ public class ProductController {
                     .header(HttpHeaders.ETAG, etag)
                     .body(new ApiResponse("Success", productDto));
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error", HttpStatus.INTERNAL_SERVER_ERROR));
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error", e.getMessage()));
         }
     }
 

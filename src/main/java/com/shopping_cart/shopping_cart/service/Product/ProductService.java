@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.modelmapper.ModelMapper;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.shopping_cart.shopping_cart.dto.ImageDto;
@@ -54,8 +55,9 @@ public class ProductService implements  IProductService{
         return new Product(requets.getName(),requets.getBrand(),requets.getPrice(),requets.getInventory(),requets.getDescription(),category);
     }
 
-    public Product getProductById(Long Id){
-        return productRepository.findById(Id).orElseThrow(()->new ProductNotFoundException("Product not Found"));
+    @Cacheable(value = "products", key = "#id")
+    public Product getProductById(Long id){
+        return productRepository.findById(id).orElseThrow(()->new ProductNotFoundException("Product not Found"));
     }
     public void deleteProductById(Long Id){
         productRepository.findById(Id).ifPresentOrElse(productRepository::delete,()->{
