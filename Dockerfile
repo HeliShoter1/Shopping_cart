@@ -5,11 +5,9 @@ FROM maven:3.9-eclipse-temurin-17 AS builder
 
 WORKDIR /app
 
-# Copy pom.xml trước để tận dụng Docker cache
 COPY pom.xml .
 RUN mvn dependency:go-offline -B
 
-# Copy source code và build
 COPY src ./src
 RUN mvn clean package -DskipTests -B
 
@@ -20,17 +18,26 @@ FROM eclipse-temurin:17-jre-alpine
 
 WORKDIR /app
 
-# Tạo user non-root để tăng bảo mật
 RUN addgroup -S appgroup && adduser -S appuser -G appgroup
 
-# Copy JAR từ stage build
 COPY --from=builder /app/target/*.jar app.jar
 
-# Đổi owner file
 RUN chown appuser:appgroup app.jar
 
 USER appuser
 
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# ✅ Thêm 1: JVM tuning cho container
+# -XX:+UseContainerSupport    → JVM tự đọc memory limit của Docker
+# -XX:MaxRAMPercentage=75     → dùng tối đa 75% RAM container
+# -XX:+ExitOnOutOfMemoryError → tự tắt khi OOM thay vì treo
+ENTRYPOINT ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75.0", \
+    "-XX:+ExitOnOutOfMemoryError", \
+    "-jar", "app.jar"]
+
+# ✅ Thêm 2: Health check — Docker biết app đã sẵn sàng chưa
+HEALTHCHECK --interval=30s --timeout=5s --start-period=60s --retries=3 \
+    CMD wget -qO- http://localhost:8080/actuator/health || exit 1
