@@ -1,6 +1,7 @@
 package com.shopping_cart.shopping_cart.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("${api.prefix}/email")
 @RequiredArgsConstructor
+@Async
 public class EmailController {
 
         private final EmailService emailService;

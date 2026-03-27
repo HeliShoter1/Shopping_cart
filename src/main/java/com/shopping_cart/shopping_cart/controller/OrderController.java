@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -11,11 +12,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shopping_cart.shopping_cart.dto.OrderDto;
+import com.shopping_cart.shopping_cart.message.EmailMessage;
 import com.shopping_cart.shopping_cart.message.OrderMessage;
 import com.shopping_cart.shopping_cart.model.Order;
 import com.shopping_cart.shopping_cart.response.ApiResponse;
 import com.shopping_cart.shopping_cart.sercurity.user.ShopUserDetail;
 import com.shopping_cart.shopping_cart.service.MessageProducer;
+import com.shopping_cart.shopping_cart.service.email.EmailService;
 import com.shopping_cart.shopping_cart.service.order.OrderService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,9 +33,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/orders")
+@Async
 public class OrderController {
     private final OrderService orderService;
     private final MessageProducer messageProducer;
+    private final EmailService emailService;
 
     @PostMapping("/order")    
     public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId){
@@ -56,6 +61,11 @@ public class OrderController {
                 order.getUser().getId(),
                 order.getTotalAmount(),
                 "PENDING"
+            ));
+            messageProducer.sendEmail(new EmailMessage(
+                currentUser.getEmail(),
+                "Order sucess",
+                "Your order is sucesss"
             ));
             return ResponseEntity.ok(new ApiResponse("Item order success", order));
         } catch (Exception e) {
