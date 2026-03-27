@@ -11,9 +11,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.shopping_cart.shopping_cart.dto.OrderDto;
+import com.shopping_cart.shopping_cart.message.OrderMessage;
 import com.shopping_cart.shopping_cart.model.Order;
 import com.shopping_cart.shopping_cart.response.ApiResponse;
 import com.shopping_cart.shopping_cart.sercurity.user.ShopUserDetail;
+import com.shopping_cart.shopping_cart.service.MessageProducer;
 import com.shopping_cart.shopping_cart.service.order.OrderService;
 
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @RequestMapping("${api.prefix}/orders")
 public class OrderController {
     private final OrderService orderService;
+    private final MessageProducer messageProducer;
 
     @PostMapping("/order")    
     public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId){
@@ -48,6 +51,12 @@ public class OrderController {
                 .body(new ApiResponse("You can only update your own account", null));
             }
             Order order = orderService.placeOrder(userId);
+            messageProducer.sendOrderCreated(new OrderMessage(
+                order.getOrderId(),
+                order.getUser().getId(),
+                order.getTotalAmount(),
+                "PENDING"
+            ));
             return ResponseEntity.ok(new ApiResponse("Item order success", order));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error", e.getMessage()));
