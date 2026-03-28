@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 @RestController
 @RequestMapping("${api.prefix}/email")
 @RequiredArgsConstructor
-@Async
 public class EmailController {
 
         private final EmailService emailService;

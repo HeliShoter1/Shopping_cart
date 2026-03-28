@@ -37,11 +37,10 @@ public class ShopCartConfig {
     private final JwtAuthEntryPoint jwtAuthEntryPoint;
 
     private static final List<String> SECURED_URLS = List.of(
-        "/api/v1/carts/**",
-        "/api/v1/cartItems/**",
-        "/api/v1/orders/**",
-        "api/v1/users/**",
-        "api/v1/oders/**"
+        "/api/v1/carts/**"
+        ,"/api/v1/cartItems/**"
+        ,"api/v1/users/**"
+        // ,"api/v1/oders/**"
     );
 
     private static final List<String> PUBLIC_URLS = List.of(

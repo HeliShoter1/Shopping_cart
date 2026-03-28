@@ -8,6 +8,6 @@ import org.springframework.data.jpa.repository.Query;
 import com.shopping_cart.shopping_cart.model.Cart;
 
 public interface CartReponsitory extends JpaRepository<Cart,Long>{
-    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId and c.id > :cursor ORDER BY c.id ASC limit :limit")
+    @Query("SELECT c FROM Cart c WHERE c.user.id = :userId")
     Cart findByUserId(Long userId);
 }

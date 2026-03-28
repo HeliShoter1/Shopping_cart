@@ -1,6 +1,7 @@
 package com.shopping_cart.shopping_cart.controller;
 
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,50 +29,32 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
-
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("${api.prefix}/orders")
-@Async
 public class OrderController {
     private final OrderService orderService;
-    private final MessageProducer messageProducer;
-    private final EmailService emailService;
 
-    @PostMapping("/order")    
-    public ResponseEntity<ApiResponse> createOrder(@RequestParam Long userId){
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-    
-        Object principal = auth.getPrincipal();
-        if (!(principal instanceof ShopUserDetail)) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-                    .body(new ApiResponse("Unauthorized", null));
-        }
-    
-        ShopUserDetail currentUser = (ShopUserDetail) principal;
-        try {
-            if(!currentUser.getId().equals(userId)){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiResponse("You can only update your own account", null));
-            }
-            Order order = orderService.placeOrder(userId);
-            messageProducer.sendOrderCreated(new OrderMessage(
-                order.getOrderId(),
-                order.getUser().getId(),
-                order.getTotalAmount(),
-                "PENDING"
-            ));
-            messageProducer.sendEmail(new EmailMessage(
-                currentUser.getEmail(),
-                "Order sucess",
-                "Your order is sucesss"
-            ));
-            return ResponseEntity.ok(new ApiResponse("Item order success", order));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Error", e.getMessage()));
-        }
-    }    
+    @PostMapping("/order")
+public ResponseEntity<ApiResponse> createOrder() {
+    Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+    Object principal = auth.getPrincipal();
+    if (!(principal instanceof ShopUserDetail)) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(new ApiResponse("Unauthorized", null));
+    }
+
+    ShopUserDetail currentUser = (ShopUserDetail) principal;
+    try {
+        orderService.placeOrder(currentUser.getId());
+        return ResponseEntity
+                .status(HttpStatus.ACCEPTED)
+                .body(new ApiResponse("Đơn hàng đang được xử lý", null));
+    } catch (Exception e) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new ApiResponse("Error", e.getMessage()));
+    }
+}   
 
     @GetMapping("/{orderId}/order")
     public ResponseEntity<ApiResponse> getOrderById(@PathVariable Long orderId) {
@@ -84,7 +67,7 @@ public class OrderController {
     }
 
     @GetMapping("/{userId}/orders")
-    public ResponseEntity<ApiResponse> getUserOrders(@PathVariable Long userId, @RequestParam Long cursor, @RequestParam Long limit) {
+    public ResponseEntity<ApiResponse> getUserOrders(@RequestParam Long cursor, @RequestParam Long limit) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
     
         Object principal = auth.getPrincipal();
@@ -95,11 +78,7 @@ public class OrderController {
     
         ShopUserDetail currentUser = (ShopUserDetail) principal;
         try {
-            if(!currentUser.getId().equals(userId)){
-                return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                .body(new ApiResponse("You can only view your own account", null));
-            }
-            List<OrderDto> order = orderService.getUserOrders(userId,cursor, limit);
+            List<OrderDto> order = orderService.getUserOrders(currentUser.getId(),cursor, limit);
             return ResponseEntity.ok( new ApiResponse("Success", order));
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body( new ApiResponse("Error", e.getMessage()));

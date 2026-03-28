@@ -10,12 +10,14 @@ import org.springframework.stereotype.Service;
 
 import com.shopping_cart.shopping_cart.enums.OrderStatus;
 import com.shopping_cart.shopping_cart.exceptions.ResourceNotFoundException;
+import com.shopping_cart.shopping_cart.message.EmailMessage;
 import com.shopping_cart.shopping_cart.model.Cart;
 import com.shopping_cart.shopping_cart.model.Order;
 import com.shopping_cart.shopping_cart.model.OrderItem;
 import com.shopping_cart.shopping_cart.model.Product;
 import com.shopping_cart.shopping_cart.reponsitory.OrderReponsitory;
 import com.shopping_cart.shopping_cart.reponsitory.ProductRepository;
+import com.shopping_cart.shopping_cart.service.MessageProducer;
 import com.shopping_cart.shopping_cart.service.cart.CartService;
 
 import jakarta.transaction.Transactional;
@@ -27,12 +29,12 @@ import lombok.RequiredArgsConstructor;
 @Service
 @RequiredArgsConstructor
 @Transactional
-
 public class OrderService implements IOrderService{
     private final OrderReponsitory orderReponsitory;
     private final ProductRepository productRepository;
     private final CartService cartService;
     private final ModelMapper modelMapper;
+    private final MessageProducer messageProduct;
 
     public Order placeOrder(Long userId){
         Cart cart = cartService.getCartByUserId(userId);
@@ -41,9 +43,15 @@ public class OrderService implements IOrderService{
         order.setOrderItems(new HashSet<>(orderItems));
         order.setTotalAmount(calculateTotalAmount(orderItems));
         Order saveOrder = orderReponsitory.save(order);
+        messageProduct.sendEmail(new EmailMessage(
+            saveOrder.getUser().getEmail(),
+            "Order Sucessfully",
+            "Order successfully"
+        ));
         cartService.cleanCart(cart.getId());
         return saveOrder;
     }
+    
     public OrderDto getOrder(Long orderId){
         Order order = orderReponsitory.findById(orderId).orElseThrow(() -> new ResourceNotFoundException("Order Not Found"));
         return convertDto(order);

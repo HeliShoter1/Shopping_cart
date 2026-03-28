@@ -15,8 +15,8 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class EmailConsumer {
 
-    private final EmailService emailService; // class chứa sendSimpleEmail của bạn
-
+    private final EmailService emailService;
+    
     @RabbitListener(queues = RabbitMQConfig.EMAIL_QUEUE)
     public void handleEmail(EmailMessage message) {
         log.info("Sending email to: {}", message.getTo());
@@ -28,8 +28,7 @@ public class EmailConsumer {
             );
             log.info("Email sent successfully to: {}", message.getTo());
         } catch (Exception e) {
-            log.error("Failed to send email to {}: {}", message.getTo(), e.getMessage());
-            throw e; 
+            log.error("Failed to send email to {}: {}", message.getTo(), e.getMessage());       
         }
     }
 }
