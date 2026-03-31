@@ -1,5 +1,7 @@
 package com.shopping_cart.shopping_cart.service;
 
+import java.util.List;
+
 import org.springframework.amqp.core.AmqpTemplate;
 import org.springframework.stereotype.Service;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import com.shopping_cart.shopping_cart.config.RabbitMQConfig;
 import com.shopping_cart.shopping_cart.message.EmailMessage;
+import com.shopping_cart.shopping_cart.message.ImageMessage;
 import com.shopping_cart.shopping_cart.message.OrderMessage;
+import com.shopping_cart.shopping_cart.model.Image;
 
 
 @Service
@@ -30,6 +34,14 @@ public class MessageProducer {
             RabbitMQConfig.EXCHANGE,
             RabbitMQConfig.EMAIL_ROUTING_KEY,
             message
+        );
+    }
+
+    public void processImages(List<Image> images){
+        amqpTemplate.convertAndSend(
+            RabbitMQConfig.EXCHANGE,
+            RabbitMQConfig.IMAGE_ROUTING_KEY,
+            images
         );
     }
 }

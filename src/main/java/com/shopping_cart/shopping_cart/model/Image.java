@@ -1,5 +1,6 @@
 package com.shopping_cart.shopping_cart.model;
 
+import java.io.Serializable;
 import java.sql.Blob;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,7 +24,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-public class Image {
+public class Image implements Serializable{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -11,6 +11,6 @@ import com.shopping_cart.shopping_cart.model.Product;
 public interface IImageService {
     Image getImageById(Long id);
     void deleteImageById(Long id);
-    List<ImageDto> savesImages(Long productId, List<MultipartFile> files);
+    void savesImages(Long productId, List<MultipartFile> files);
     void updateImage(MultipartFile file, Long imageId);
 }

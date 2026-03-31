@@ -40,11 +40,14 @@ public class ShopCartConfig {
         "/api/v1/carts/**"
         ,"/api/v1/cartItems/**"
         ,"api/v1/users/**"
-        // ,"api/v1/oders/**"
+        ,"api/v1/oders/**"
+        ,"api/v1/images/**"
     );
 
     private static final List<String> PUBLIC_URLS = List.of(
         "/api/v1/users/add"
+        ,"api/v1/images/upload"
+        ,"api/v1/images/download/**"
     );
 
     @Bean

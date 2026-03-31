@@ -1,5 +1,6 @@
 package com.shopping_cart.shopping_cart.service.Image;
 
+import com.shopping_cart.shopping_cart.service.MessageProducer;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -25,8 +26,10 @@ import lombok.RequiredArgsConstructor;
 @Transactional
 public class ImageService implements IImageService{
 
+    private final MessageProducer messageProducer;
     private final ImageRepository imageRepository;
     private final IProductService productService;
+
 
     public Image getImageById(Long id){
         return imageRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Image Not Found"));
@@ -38,9 +41,9 @@ public class ImageService implements IImageService{
             throw new  ResourceNotFoundException("Image Not Found");
         });
     }
-    public List<ImageDto> savesImages(Long productId, List<MultipartFile> files){
+    public void savesImages(Long productId, List<MultipartFile> files){
         Product product = productService.getProductById(productId);
-        List<ImageDto> imageDtos = new ArrayList<>();
+        List<Image> images = new ArrayList<>();
         for (MultipartFile file : files){
             try{
                 Image image = new Image();
@@ -48,25 +51,12 @@ public class ImageService implements IImageService{
                 image.setFileType(file.getContentType());
                 image.setImage(new SerialBlob(file.getBytes()));
                 image.setProduct(product);
-
-                String buildDownloadUrl = "/api/v1/images/image/download/";
-                String downloadUrl = buildDownloadUrl+image.getId();
-                image.setDownloadUrl(downloadUrl);
-                Image savedImage = imageRepository.save(image);
-
-                savedImage.setDownloadUrl(buildDownloadUrl+savedImage.getId());
-                imageRepository.save(savedImage);
-
-                ImageDto imageDto = new ImageDto();
-                imageDto.setId(image.getId());
-                imageDto.setFileName(image.getFileName());
-                imageDto.setDownloadUrl(downloadUrl);
-                imageDtos.add(imageDto);
+                images.add(image);
             }catch(IOException | SQLException e){
                 throw new RuntimeException(e.getMessage());
             }
         }
-        return imageDtos;
+        messageProducer.processImages(images);
     }
     public void updateImage(MultipartFile file, Long imageId){
         Image image = getImageById(imageId);

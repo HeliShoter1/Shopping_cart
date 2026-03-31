@@ -40,8 +40,10 @@ public class ImageController {
     @PostMapping(value = "/upload")
     public ResponseEntity<ApiResponse> saveImages(@RequestParam List<MultipartFile> files, @RequestParam Long productId) throws Exception{
         try {
-            List<ImageDto> imageDtos = imageService.savesImages(productId, files);
-            return ResponseEntity.ok(new ApiResponse("Update success", imageDtos));            
+            imageService.savesImages(productId, files);
+            return  ResponseEntity
+            .status(HttpStatus.ACCEPTED)
+            .body(new ApiResponse("Ảnh đang được xử lý", null));          
         } catch (Exception e) {
             System.out.println(e);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(new ApiResponse("Upload failed", e.getMessage()));
