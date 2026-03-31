@@ -43,29 +43,34 @@ public class ImageService implements IImageService{
     }
     public void savesImages(Long productId, List<MultipartFile> files){
         Product product = productService.getProductById(productId);
+        System.out.println(product.getId());
         List<Image> images = new ArrayList<>();
         for (MultipartFile file : files){
             try{
                 Image image = new Image();
                 image.setFileName(file.getOriginalFilename());
                 image.setFileType(file.getContentType());
-                image.setImage(new SerialBlob(file.getBytes()));
-                image.setProduct(product);
+                image.setImageData(file.getBytes());
+                image.setProductId(product.getId());
                 images.add(image);
-            }catch(IOException | SQLException e){
+            }catch(IOException e){
                 throw new RuntimeException(e.getMessage());
             }
         }
         messageProducer.processImages(images);
     }
+
+    public Image saveImage(Image image){
+        return imageRepository.save(image);
+    }
+
     public void updateImage(MultipartFile file, Long imageId){
         Image image = getImageById(imageId);
         try {
             image.setFileName(file.getOriginalFilename());
             image.setFileType(file.getContentType());
-            image.setImage(new SerialBlob(file.getBytes()));
             imageRepository.save(image);
-        } catch (IOException | SQLException e) {
+        } catch (Exception  e) {
             throw new RuntimeException(e.getMessage());
         }
     }

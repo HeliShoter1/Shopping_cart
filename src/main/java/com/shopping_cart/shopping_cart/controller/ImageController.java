@@ -4,6 +4,13 @@ import java.sql.SQLException;
 import java.util.List;
 
 import javax.management.RuntimeErrorException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
@@ -51,13 +58,15 @@ public class ImageController {
     }
 
     @GetMapping("/image/download/{imageId}")
-    public ResponseEntity<Resource> downloadImage(@PathVariable("imageId") Long imageId) throws SQLException{
+    public ResponseEntity<Resource> downloadImage(@PathVariable("imageId") Long imageId) {
         Image image = imageService.getImageById(imageId);
-        ByteArrayResource resource = new ByteArrayResource(image.getImage().getBytes(1, (int) image.getImage().length()));
+        Path filePath = Paths.get(image.getFilePath());
+        Resource resource = new FileSystemResource(filePath);
+        
         return ResponseEntity
                 .ok()
                 .contentType(MediaType.parseMediaType(image.getFileType()))
-                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" +image.getFileName() + "\"")
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + image.getFileName() + "\"")
                 .body(resource);
     }
 

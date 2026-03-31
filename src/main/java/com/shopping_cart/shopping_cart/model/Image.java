@@ -3,6 +3,10 @@ package com.shopping_cart.shopping_cart.model;
 import java.io.Serializable;
 import java.sql.Blob;
 
+import javax.sql.rowset.serial.SerialBlob;
+
+import jakarta.persistence.Transient;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 import jakarta.annotation.Generated;
@@ -18,7 +22,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-
 @Setter
 @Getter
 @AllArgsConstructor
@@ -30,10 +33,15 @@ public class Image implements Serializable{
     private Long id;
     private String fileName;
     private String fileType;
-    @Lob
-    private Blob image;
+    private String filePath;
 
     private String downloadUrl;
+
+    @Transient
+    private byte[] imageData;
+
+    @Transient
+    private Long productId;
 
     @JsonIgnore
     @ManyToOne
